@@ -44,10 +44,22 @@ sub mtik_connect
         print "no host!\n";
         return 0;
     }
-    my($sock) = new IO::Socket::INET(
+    if( $port eq 8729 )
+    {
+        use IO::Socket::SSL;
+        $sock = new IO::Socket::SSL(
+                    PeerAddr => $host,
+                    PeerPort => 8729,
+                    Proto    => 'tcp') or die "failed connect or ssl handshake: $!,",&IO::Socket::SSL::errstr,"\n";
+    }
+    else
+    {
+
+        my($sock) = new IO::Socket::INET(
                     PeerAddr => $host,
                     PeerPort => $port,
                     Proto    => 'tcp');
+    }
     if (!($sock))
     {
         print "no socket :$!\n";
@@ -115,7 +127,7 @@ sub write_len {
 
 sub read_byte{
 	my $line;
-	$sock->recv($line,1);
+	$sock->read($line,1);
 	return ord($line);
 }
 
@@ -183,7 +195,7 @@ sub read_word {
         }
         while (1) {
             my($line) = '';
-            $sock->recv($line,$len);
+            $sock->read($line,$len);
             # append to $ret_line, in case we didn't get the whole word and are going round again
             $ret_line .= $line;
             my $got_len = length($line);
@@ -289,8 +301,9 @@ sub login
     my($host) = shift;
     my($username) = shift;
     my($passwd) = shift;
+    my($port) = shift;
 
-    if (!($sock = &mtik_connect($host)))
+    if (!($sock = &mtik_connect($host, $port)))
     {
         return 0;
     }
