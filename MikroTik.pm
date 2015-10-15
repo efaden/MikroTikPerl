@@ -55,7 +55,7 @@ sub mtik_connect
     else
     {
 
-        my($sock) = new IO::Socket::INET(
+        $sock = new IO::Socket::INET(
                     PeerAddr => $host,
                     PeerPort => $port,
                     Proto    => 'tcp');
