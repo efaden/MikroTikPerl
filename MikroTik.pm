@@ -39,6 +39,7 @@ sub mtik_connect
 {
     my($host) = shift;
     my($port) = shift || 8728;
+    my($sock);
     if (!($host))
     {
         print "no host!\n";
@@ -55,7 +56,7 @@ sub mtik_connect
     else
     {
 
-        my($sock) = new IO::Socket::INET(
+        $sock = new IO::Socket::INET(
                     PeerAddr => $host,
                     PeerPort => $port,
                     Proto    => 'tcp');
