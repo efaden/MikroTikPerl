@@ -297,7 +297,8 @@ sub raw_talk
     return ($retval,@response);
 }
 
-sub login
+# For firmware pre-v6.43
+sub login_old
 {
     my($host) = shift;
     my($username) = shift;
@@ -322,6 +323,35 @@ sub login
     push(@command, '=name=' . $username);
     push(@command, '=response=00' . $hexdigest);
     ($retval,@results) = &talk(\@command);
+    if ($retval > 1)
+    {
+        $error_msg = $results[0]{'message'};
+        return 0;
+    }
+    if ($debug > 0)
+    {
+        print "Logged in to $host as $username\n";
+    }
+    return 1;
+}
+
+# For firmware post-v6.43
+sub login
+{
+    my($host) = shift;
+    my($username) = shift;
+    my($passwd) = shift;
+    my($port) = shift;
+
+    if (!($sock = &mtik_connect($host, $port)))
+    {
+        return 0;
+    }
+    my(@command);
+    push(@command, '/login');
+    push(@command, '=name=' . $username);
+    push(@command, '=password=' . $passwd);
+    my($retval,@results) = &talk(\@command);
     if ($retval > 1)
     {
         $error_msg = $results[0]{'message'};
